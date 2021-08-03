@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "name": "Accessibility Suite",
+  "description": "JS framework for KaiOS",
+  "launch_path": "/index.html",
+  "theme": "#873eff",
+  "theme_color": "#873eff",
+  "background_color": "#873eff",
+  "categories": [
+    "utilities"
+  ],
+  "icons": {
+    "56": "/icons/icon56x56.png",
+    "112": "/icons/icon112x112.png"
+  },
+  "developer": {
+    "name": "arma7x",
+    "url": "https://github.com/arma7x"
+  },
+  "origin": "app://accessibility-suite.arma7x.com",
+  "type": "web",
+  "permissions": {
+    "geolocation": {
+      "description": "Get user location"
+    },
+    "desktop-notification": {
+      "description": "Required for displaying alerts when app is on background"
+    }
+  },
+  "messages": [
+    {
+      "serviceworker-notification": "/index.html"
+    }
+  ],
+  "locales": {
+    "en-US": {
+      "name": "Accessibility Suite",
+      "subtitle": "JS framework for KaiOS",
+      "description": "JS framework for KaiOS"
+    }
+  },
+  "default_locale": "en-US"
+}

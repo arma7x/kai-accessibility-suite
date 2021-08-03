@@ -1,0 +1,24 @@
+<div class="kui-flex-wrap">
+  <ul class="kui-list kai-container">
+    <li class="batteryNav">
+      <span class="sr-only">You at Battery Info. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
+      <span aria-hidden="true">Battery Info</span>
+    </li>
+    <li class="batteryNav" @click="getBatteryInfo(1)">
+      <span class="sr-only">Press Enter to get battery level,</span>
+      <span aria-hidden="true">Get Battery Level</span>
+    </li>
+    <li class="batteryNav" @click="getBatteryInfo(2)">
+      <span class="sr-only">Press Enter to get battery charging status,</span>
+      <span aria-hidden="true">Get Battery Charging Status</span>
+    </li>
+    <li class="batteryNav" @click="getBatteryInfo(3)">
+      <span class="sr-only">Press Enter to get battery temperature level,</span>
+      <span aria-hidden="true">Get Battery Temperature Level</span>
+    </li>
+    <li class="batteryNav" @click="getBatteryInfo(4)">
+      <span class="sr-only">Press Enter to get battery health status,</span>
+      <span aria-hidden="true">Get Battery Health Status</span>
+    </li>
+  </ul>
+</div>
