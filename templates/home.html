@@ -1,8 +1,10 @@
 <div class="kui-flex-wrap">
   <ul class="kui-list kai-container">
-    <li class="homeNav">
-      <span class="sr-only">You at Homescreen. Use Arrow Up and Arrow Down button to navigate the menu,</span>
-      <span aria-hidden="true">Accessibility Suite</span>
+    <li class="homeNav" style="padding:0px">
+      <div style="text-align:center;width:100%;font-weight:bold;transform:uppercase;">
+        <span class="sr-only">You at Homescreen. Use Arrow Up and Arrow Down button to navigate the menu,</span>
+        <div aria-hidden="true" style="text-decoration: underline;">Homescreen</div>
+      </div>
     </li>
     <li class="homeNav" @click="goToScreen('battery')">
       <span class="sr-only">Get Battery Info,</span>
@@ -11,6 +13,10 @@
     <li class="homeNav" @click="goToScreen('dateTime')">
       <span class="sr-only">Get Date and Time Info,</span>
       <span aria-hidden="true">Get Date and Time Info</span>
+    </li>
+    <li class="homeNav" @click="goToScreen('weather')">
+      <span class="sr-only">Get Weather Forecast,</span>
+      <span aria-hidden="true">Get Weather Forecast</span>
     </li>
     <li class="homeNav" @click="exitApp()">
       <span class="sr-only">Press Enter to exit the app,</span>

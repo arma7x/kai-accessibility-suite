@@ -1,0 +1,13 @@
+<div class="kui-flex-wrap">
+  <ul class="kui-list kai-container">
+    {{#opts}}
+    <li class="weatherNav">
+      <span class="sr-only">{{ screen_reader }}</span>
+      <div aria-hidden="true">
+        <div>{{ text }}</div>
+        {{#subtext}}<small>{{ subtext }}</small>{{/subtext}}
+      </div>
+    </li>
+    {{/opts}}
+  </ul>
+</div>

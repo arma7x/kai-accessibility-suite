@@ -53,17 +53,6 @@ const getWeatherForecast = function(lat, long) {
   })
 }
 
-//getMyLocation()
-//.then((pos) => {
-  //return getWeatherForecast(pos.latitude, pos.longitude);
-//})
-//.then((forecast) => {
-  //console.log(forecast);
-//})
-//.catch((err) => {
-  //console.log(err);
-//})
-
 const pushLocalNotification = function(text) {
   window.Notification.requestPermission().then(function(result) {
     var notification = new window.Notification(text);
@@ -89,8 +78,7 @@ const pushLocalNotification = function(text) {
 window.addEventListener("load", function() {
 
   const state = new KaiState({
-    'counter': -1,
-    'editor': '',
+    'weather': {},
   });
 
   const battery = new Kai({
@@ -102,7 +90,9 @@ window.addEventListener("load", function() {
     verticalNavClass: '.batteryNav',
     components: [],
     templateUrl: document.location.origin + '/templates/battery.html',
-    mounted: function() {},
+    mounted: function() {
+      this.$router.setHeaderTitle('Battery Info');
+    },
     unmounted: function() {},
     methods: {
       getBatteryInfo: function(type) {
@@ -153,7 +143,9 @@ window.addEventListener("load", function() {
     verticalNavClass: '.dateTimeNav',
     components: [],
     templateUrl: document.location.origin + '/templates/dateTime.html',
-    mounted: function() {},
+    mounted: function() {
+      this.$router.setHeaderTitle('Date and Time Info');
+    },
     unmounted: function() {},
     methods: {
       getCurrentTime: function(type) {
@@ -195,6 +187,102 @@ window.addEventListener("load", function() {
     }
   });
 
+  const weather = new Kai({
+    name: 'weather',
+    data: {
+      title: 'weather',
+      opts: [
+        {
+          'screen_reader': 'Please wait while we getting a weather forcast,',
+          'text': 'Please wait...',
+        }
+      ]
+    },
+    verticalNavClass: '.weatherNav',
+    components: [],
+    templateUrl: document.location.origin + '/templates/weather.html',
+    mounted: function() {
+      this.$router.setHeaderTitle('Weather Forecast');
+      this.$state.setState('weather', {});
+      this.methods.getWeather();
+      this.$state.addStateListener('weather', this.methods.weatherEvent);
+    },
+    unmounted: function() {
+      this.$state.removeStateListener('weather', this.methods.weatherEvent);
+    },
+    methods: {
+      getWeather: function() {
+        getMyLocation()
+        .then((pos) => {
+          return getWeatherForecast(pos.latitude, pos.longitude);
+        })
+        .then((forecast) => {
+          pushLocalNotification(`Success`);
+          setTimeout(() => {
+            this.$state.setState('weather', forecast);
+          }, 1000);
+        })
+        .catch((err) => {
+          pushLocalNotification(`Error, please press Back to return,`);
+        })
+      },
+      weatherEvent: function(forecast) {
+        if (Object.keys(forecast).length > 0) {
+          var data = [];
+          if (forecast.title) {
+            data.push({
+              'screen_reader': `Weather Forcast for ${forecast.title}. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
+              'text': `Weather Forcast`,
+              'subtext': `${forecast.title}`,
+            });
+            for (var f in forecast.consolidated_weather) {
+              const d = forecast.consolidated_weather[f];
+              data.push({
+                'screen_reader': `Weather forecast for ${new Date(d.applicable_date).toDateString()}, weather condition is ${d.weather_state_name}, humidity is ${d.humidity}%, minimum temperature is ${d.min_temp.toFixed()} degree celcius, maximum temperature is ${d.max_temp.toFixed()} degree celcius, wind speed is ${d.wind_speed.toFixed()}mph, forecast accuracy is ${d.predictability}%`,
+                'text': `${new Date(d.applicable_date).toDateString()}`,
+                'subtext': `${d.weather_state_name}, min ${d.min_temp.toFixed()}°, max ${d.max_temp.toFixed()}°`,
+              });
+            }
+            this.setData({opts: []});
+            setTimeout(() => {
+              this.setData({
+                opts: data
+              });
+            }, 1000);
+          }
+        }
+      }
+    },
+    softKeyText: { left: '', center: '', right: '' },
+    softKeyListener: {
+      left: function() {},
+      center: function() {
+        const listNav = document.querySelectorAll(this.verticalNavClass);
+        if (this.verticalNavIndex > -1) {
+          listNav[this.verticalNavIndex].click();
+        }
+      },
+      right: function() {}
+    },
+    dPadNavListener: {
+      arrowUp: function() {
+        this.navigateListNav(-1);
+      },
+      arrowRight: function() {
+        // this.navigateTabNav(-1);
+      },
+      arrowDown: function() {
+        this.navigateListNav(1);
+      },
+      arrowLeft: function() {
+        // this.navigateTabNav(1);
+      }
+    },
+    backKeyListener: function() {
+      this.$state.setState('weather', {});
+    }
+  });
+
   const homescreen = new Kai({
     name: 'homescreen',
     data: {
@@ -204,7 +292,10 @@ window.addEventListener("load", function() {
     verticalNavClass: '.homeNav',
     components: [],
     templateUrl: document.location.origin + '/templates/home.html',
-    mounted: function() {},
+    mounted: function() {
+      this.$router.setHeaderTitle('Accessibility Suite');
+      // displayKaiAds();
+    },
     unmounted: function() {
       this.verticalNavIndex = -1;
     },
@@ -265,6 +356,10 @@ window.addEventListener("load", function() {
         name: 'dateTime',
         component: dateTime
       },
+      'weather' : {
+        name: 'weather',
+        component: weather
+      },
     }
   });
 
@@ -284,6 +379,48 @@ window.addEventListener("load", function() {
     console.log(e);
   }
 
+  function displayKaiAds() {
+    var display = true;
+    if (window['kaiadstimer'] == null) {
+      window['kaiadstimer'] = new Date();
+    } else {
+      var now = new Date();
+      if ((now - window['kaiadstimer']) < 300000) {
+        display = false;
+      } else {
+        window['kaiadstimer'] = now;
+      }
+    }
+    console.log('Display Ads:', display);
+    if (!display)
+      return;
+    getKaiAd({
+      publisher: 'ac3140f7-08d6-46d9-aa6f-d861720fba66',
+      app: 'accessibility-suite',
+      slot: 'kaios',
+      onerror: err => console.error(err),
+      onready: ad => {
+        ad.call('display');
+        ad.on('close', () => {
+          const screen = app.$router.stack[app.$router.stack.length - 1];
+          if (document.activeElement && screen) {
+            document.activeElement.classList.remove('focus');
+            screen.verticalNavIndex = -1;
+            setTimeout(() => {
+              screen.navigateListNav(1);
+            }, 200);
+          }
+        });
+        pushLocalNotification('Ads was displayed, press Left key to close');
+        setTimeout(() => {
+          document.body.style.position = '';
+        }, 1000);
+      }
+    })
+  }
+
+  displayKaiAds();
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       
@@ -292,6 +429,7 @@ window.addEventListener("load", function() {
       if (main.name === 'homescreen') {
         if (main.verticalNavIndex === -1) {
           main.navigateListNav(1);
+          displayKaiAds();
         }
       }
     }

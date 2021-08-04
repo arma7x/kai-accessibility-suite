@@ -1,8 +1,10 @@
 <div class="kui-flex-wrap">
   <ul class="kui-list kai-container">
-    <li class="dateTimeNav">
-      <span class="sr-only">You at Date and Time Info. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
-      <span aria-hidden="true">Date and Time Info</span>
+    <li class="dateTimeNav" style="padding:0px">
+      <div style="text-align:center;width:100%;font-weight:bold;transform:uppercase;">
+        <span class="sr-only">You at Date and Time Info. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
+        <div aria-hidden="true" style="text-decoration: underline;">Date and Time Info</div>
+      </div>
     </li>
     <li class="dateTimeNav" @click="getCurrentTime(1)">
       <span class="sr-only">Press Enter to get current time,</span>

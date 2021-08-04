@@ -1,8 +1,10 @@
 <div class="kui-flex-wrap">
   <ul class="kui-list kai-container">
-    <li class="batteryNav">
-      <span class="sr-only">You at Battery Info. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
-      <span aria-hidden="true">Battery Info</span>
+    <li class="batteryNav" style="padding:0px">
+      <div style="text-align:center;width:100%;font-weight:bold;transform:uppercase;">
+        <span class="sr-only">You at Battery Info. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
+        <div aria-hidden="true" style="text-decoration: underline;">Battery Info</div>
+      </div>
     </li>
     <li class="batteryNav" @click="getBatteryInfo(1)">
       <span class="sr-only">Press Enter to get battery level,</span>
