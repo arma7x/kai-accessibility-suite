@@ -193,7 +193,7 @@ window.addEventListener("load", function() {
       title: 'weather',
       opts: [
         {
-          'screen_reader': 'Please wait while we getting a weather forcast,',
+          'screen_reader': 'Please wait while we getting a weather forecast,',
           'text': 'Please wait...',
         }
       ]
