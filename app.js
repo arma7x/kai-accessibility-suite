@@ -231,8 +231,8 @@ window.addEventListener("load", function() {
           var data = [];
           if (forecast.title) {
             data.push({
-              'screen_reader': `Weather Forcast for ${forecast.title}. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
-              'text': `Weather Forcast`,
+              'screen_reader': `Weather Forecast for ${forecast.title}. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
+              'text': `Weather Forecast`,
               'subtext': `${forecast.title}`,
             });
             for (var f in forecast.consolidated_weather) {
@@ -400,11 +400,13 @@ window.addEventListener("load", function() {
       slot: 'kaios',
       onerror: err => console.error(err),
       onready: ad => {
+        if (document.activeElement) {
+          document.activeElement.classList.remove('focus');
+        }
         ad.call('display');
         ad.on('close', () => {
           const screen = app.$router.stack[app.$router.stack.length - 1];
-          if (document.activeElement && screen) {
-            document.activeElement.classList.remove('focus');
+          if (screen) {
             screen.verticalNavIndex = -1;
             setTimeout(() => {
               screen.navigateListNav(1);
