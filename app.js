@@ -97,13 +97,13 @@ window.addEventListener("load", function() {
     methods: {
       getBatteryInfo: function(type) {
         if (type === 1) {
-          pushLocalNotification(`Battery level is ${(navigator.battery.level* 100).toFixed()}%`)
+          this.$router.showDialog('Battery', `<div class="kai-list-nav"><span class="sr-only">Battery level is ${(navigator.battery.level* 100).toFixed()}%. Press Left key to close.</span><span aria-hidden="true">Battery level is ${(navigator.battery.level* 100).toFixed()}%</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         } else if (type === 2) {
-          pushLocalNotification(`Battery is ${navigator.battery.charging ? 'charging' : 'not charging'}`)
+          this.$router.showDialog('Battery', `<div class="kai-list-nav"><span class="sr-only">Battery is ${navigator.battery.charging ? 'charging' : 'not charging'}. Press Left key to close.</span><span aria-hidden="true">Battery is ${navigator.battery.charging ? 'charging' : 'not charging'}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         } else if (type === 3) {
-          pushLocalNotification(`Battery temperature is ${navigator.battery.temperature.toFixed()} degree celcius`)
+          this.$router.showDialog('Battery', `<div class="kai-list-nav"><span class="sr-only">Battery temperature is ${navigator.battery.temperature.toFixed()} degree celcius. Press Left key to close.</span><span aria-hidden="true">Battery temperature is ${navigator.battery.temperature.toFixed()} degree celcius</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         } else if (type === 4) {
-          pushLocalNotification(`Battery status is ${navigator.battery.health}`)
+          this.$router.showDialog('Battery', `<div class="kai-list-nav"><span class="sr-only">Battery status is ${navigator.battery.health}. Press Left key to close.</span><span aria-hidden="true">Battery status is ${navigator.battery.health}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         }
       }
     },
@@ -150,13 +150,13 @@ window.addEventListener("load", function() {
     methods: {
       getCurrentTime: function(type) {
         if (type === 1) {
-          pushLocalNotification(`Current time is ${new Date().toLocaleTimeString()}`);
+          this.$router.showDialog('Date and Time', `<div class="kai-list-nav"><span class="sr-only">Current time is ${new Date().toLocaleTimeString()}. Press Left key to close.</span><span aria-hidden="true">Current time is ${new Date().toLocaleTimeString()}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         } else if (type === 2) {
-          pushLocalNotification(`Current date is ${new Date().toDateString()}`);
+          this.$router.showDialog('Date and Time', `<div class="kai-list-nav"><span class="sr-only">Current date is ${new Date().toDateString()}. Press Left key to close.</span><span aria-hidden="true">Current date is ${new Date().toDateString()}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         } else if (type === 3) {
           const d = new Date();
           const full = `${d.toLocaleTimeString()}, ${d.toDateString()}`;
-          pushLocalNotification(`Current time and date are ${full}`);
+          this.$router.showDialog('Date and Time', `<div class="kai-list-nav"><span class="sr-only">Current time and date are ${full}. Press Left key to close.</span><span aria-hidden="true">Current time and date are ${full}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
         }
       }
     },
@@ -231,7 +231,7 @@ window.addEventListener("load", function() {
           var data = [];
           if (forecast.title) {
             data.push({
-              'screen_reader': `Weather Forecast for ${forecast.title}. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
+              'screen_reader': `${forecast.title} Weather Forecast for the next 6 days. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
               'text': `Weather Forecast`,
               'subtext': `${forecast.title}`,
             });
@@ -248,7 +248,7 @@ window.addEventListener("load", function() {
               this.setData({
                 opts: data
               });
-            }, 1000);
+            }, 500);
           }
         }
       }
@@ -413,10 +413,13 @@ window.addEventListener("load", function() {
             }, 200);
           }
         });
-        pushLocalNotification('Ads was displayed, press Left key to close');
-        setTimeout(() => {
+        ad.on('display', () => {
           document.body.style.position = '';
-        }, 1000);
+          if (app.$router.bottomSheet) {
+            app.$router.hideBottomSheet();
+          }
+          app.$router.showDialog('KaiAds', `<div class="kai-list-nav"><span class="sr-only">Ads was displayed. press Left key to close.</span><span aria-hidden="true">Ads was displayed, press Left key to close</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+        });
       }
     })
   }
