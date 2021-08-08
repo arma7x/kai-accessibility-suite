@@ -446,36 +446,36 @@ window.addEventListener("load", function() {
                     pushLocalNotification('Please enter location name');
                     return
                   }
-                  this.$router.hideBottomSheet();
-                  setTimeout(() => {
-                    this.methods.renderSoftKey();
-                    LOC_INPUT.blur();
-                    localforage.getItem('__locations__')
-                    .then((__locations__) => {
-                      if (__locations__ == null) {
-                        __locations__ = [];
-                      }
-                      var data = JSON.parse(JSON.stringify(this.data.coords));
-                      data['name'] = LOC_INPUT.value;
-                      __locations__.push(data);
-                      return localforage.setItem('__locations__', __locations__)
-                      .then(() => {
-                        return localforage.getItem('__locations__');
-                      })
+                  this.$router.showLoading();
+                  localforage.getItem('__locations__')
+                  .then((__locations__) => {
+                    if (__locations__ == null) {
+                      __locations__ = [];
+                    }
+                    var data = JSON.parse(JSON.stringify(this.data.coords));
+                    data['name'] = LOC_INPUT.value;
+                    __locations__.push(data);
+                    return localforage.setItem('__locations__', __locations__)
+                    .then(() => {
+                      return localforage.getItem('__locations__');
                     })
-                    .then((__locations__) => {
-                      if (__locations__ == null) {
-                        __locations__ = [];
-                      }
-                      pushLocalNotification('Done');
-                      setTimeout(() => {
-                        this.setData({
-                          locations: __locations__,
-                          total: __locations__.length,
-                        });
-                      }, 1000);
-                    });
-                  }, 100);
+                  })
+                  .then((__locations__) => {
+                    if (__locations__ == null) {
+                      __locations__ = [];
+                    }
+                    pushLocalNotification('Done');
+                    setTimeout(() => {
+                      this.$router.hideLoading();
+                      this.$router.hideBottomSheet();
+                      this.methods.renderSoftKey();
+                      LOC_INPUT.blur();
+                      this.setData({
+                        locations: __locations__,
+                        total: __locations__.length,
+                      });
+                    }, 2000);
+                  });
                   break
                 case 'SoftLeft':
                   this.$router.hideBottomSheet();
