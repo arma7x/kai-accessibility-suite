@@ -400,7 +400,7 @@ window.addEventListener("load", function() {
           this.$router.showLoading();
           getMyLocation(true)
           .then((location) => {
-            this.data.coords = location.coords;
+            this.data.coords = {latitude: location.coords.latitude, longitude: location.coords.longitude};
             console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
             this.$router.hideBottomSheet();
             this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel.  Press Right Key to continue.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
@@ -442,6 +442,7 @@ window.addEventListener("load", function() {
                   }
                   break
                 case 'SoftRight':
+                  console.log(this.data.coords);
                   if (LOC_INPUT.value == '') {
                     pushLocalNotification('Please enter location name');
                     return
@@ -512,7 +513,13 @@ window.addEventListener("load", function() {
     },
     softKeyText: { left: '', center: '', right: '' },
     softKeyListener: {
-      left: function() {},
+      left: function() {
+        const idx = this.verticalNavIndex - 1;
+        const location = this.data.locations[idx];
+        if (location) {
+          window.open(`http://www.google.com/maps/place/${location.latitude},${location.longitude}`);
+        }
+      },
       center: function() {
         const listNav = document.querySelectorAll(this.verticalNavClass);
         if (this.verticalNavIndex > -1) {
