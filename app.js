@@ -101,7 +101,7 @@ window.addEventListener("load", function() {
     components: [],
     templateUrl: document.location.origin + '/templates/battery.html',
     mounted: function() {
-      this.$router.setHeaderTitle('Battery Info');
+      // this.$router.setHeaderTitle('Battery Info');
     },
     unmounted: function() {},
     methods: {
@@ -154,7 +154,7 @@ window.addEventListener("load", function() {
     components: [],
     templateUrl: document.location.origin + '/templates/dateTime.html',
     mounted: function() {
-      this.$router.setHeaderTitle('Date and Time Info');
+      // this.$router.setHeaderTitle('Date and Time Info');
     },
     unmounted: function() {},
     methods: {
@@ -241,7 +241,7 @@ window.addEventListener("load", function() {
           var data = [];
           if (forecast.title) {
             data.push({
-              'screen_reader': `${forecast.title} Weather Forecast for the next 6 days. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,`,
+              'screen_reader': `${forecast.title} Weather Forecast for the next 6 days. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,`,
               'text': `Weather Forecast`,
               'subtext': `${forecast.title}`,
             });
@@ -303,7 +303,7 @@ window.addEventListener("load", function() {
     components: [],
     templateUrl: document.location.origin + '/templates/geolocation.html',
     mounted: function() {
-      this.$router.setHeaderTitle('Geolocation Services');
+      // this.$router.setHeaderTitle('Geolocation Services');
     },
     unmounted: function() {},
     methods: {
@@ -367,20 +367,140 @@ window.addEventListener("load", function() {
     name: 'checkIn',
     data: {
       title: 'checkIn',
-      opts: []
+      locations: [],
+      total: 0,
+      coords: {}
     },
     verticalNavClass: '.checkInNav',
     components: [],
     templateUrl: document.location.origin + '/templates/checkIn.html',
     mounted: function() {
-      this.$router.setHeaderTitle('Location Check-In');
+      //this.$router.setHeaderTitle('Location Check-In');
+      localforage.getItem('__locations__')
+      .then((__locations__) => {
+        if (__locations__ == null) {
+          __locations__ = [];
+        }
+        this.setData({
+          locations: __locations__,
+          total: __locations__.length,
+        });
+      });
+      document.addEventListener('keydown', this.methods.listenCallButton);
     },
-    unmounted: function() {},
+    unmounted: function() {
+      document.removeEventListener('keydown', this.methods.listenCallButton);
+    },
     methods: {
-      shareMyLocation: function() {
-        
+      listenCallButton: function(evt) {
+        if (this.$router.bottomSheet)
+          return
+        if (evt.key == 'Call') {
+          this.$router.showDialog('Notice', `<div class="kai-list-nav"><span class="sr-only">Please wait.</span><span aria-hidden="true">Please wait</span></div>`, null, ' ', () => {}, ' ', () => {}, ' ', () => {}, () => {});
+          this.$router.showLoading();
+          getMyLocation(true)
+          .then((location) => {
+            this.data.coords = location.coords;
+            console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
+            this.$router.hideBottomSheet();
+            this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel.  Press Right Key to continue.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
+              this.methods.checkInLocation();
+            }, 'Cancel', () => {}, ' ', () => {}, () => {});
+          })
+          .catch((e) => {
+            this.$router.hideBottomSheet();
+            this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">${e.message}. Press Left key to close.</span><span aria-hidden="true">${e.message}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+          })
+          .finally(() => {
+            this.$router.hideLoading();
+          });
+        }
       },
-      gotoCheckIn: function() {
+      checkInLocation: function() {
+        const nameDialog = Kai.createDialog('Location Name', '<label class="sr-only" for="location-name">Enter your current location name, Left Key to Cancel, Right Key to Save,</label><div><input id="location-name" name="location-name" placeholder="Your current location name" class="kui-input" type="text" /></div>', null, '', undefined, '', undefined, '', undefined, undefined, this.$router);
+        nameDialog.mounted = () => {
+          setTimeout(() => {
+            setTimeout(() => {
+              this.$router.setSoftKeyText('Cancel' , '', 'OK');
+              LOC_INPUT.focus();
+            }, 103);
+            const LOC_INPUT = document.getElementById('location-name');
+            if (!LOC_INPUT) {
+              return;
+            }
+            LOC_INPUT.focus();
+            LOC_INPUT.addEventListener('keydown', (evt) => {
+              switch (evt.key) {
+                case 'Backspace':
+                case 'EndCall':
+                  if (document.activeElement.value.length === 0) {
+                    this.$router.hideBottomSheet();
+                    setTimeout(() => {
+                      this.methods.renderSoftKey();
+                      LOC_INPUT.blur();
+                    }, 100);
+                  }
+                  break
+                case 'SoftRight':
+                  if (LOC_INPUT.value == '') {
+                    pushLocalNotification('Please enter location name');
+                    return
+                  }
+                  this.$router.hideBottomSheet();
+                  setTimeout(() => {
+                    this.methods.renderSoftKey();
+                    LOC_INPUT.blur();
+                    localforage.getItem('__locations__')
+                    .then((__locations__) => {
+                      if (__locations__ == null) {
+                        __locations__ = [];
+                      }
+                      var data = JSON.parse(JSON.stringify(this.data.coords));
+                      data['name'] = LOC_INPUT.value;
+                      __locations__.push(data);
+                      return localforage.setItem('__locations__', __locations__)
+                      .then(() => {
+                        return localforage.getItem('__locations__');
+                      })
+                    })
+                    .then((__locations__) => {
+                      if (__locations__ == null) {
+                        __locations__ = [];
+                      }
+                      pushLocalNotification('Done');
+                      setTimeout(() => {
+                        this.setData({
+                          locations: __locations__,
+                          total: __locations__.length,
+                        });
+                      }, 1000);
+                    });
+                  }, 100);
+                  break
+                case 'SoftLeft':
+                  this.$router.hideBottomSheet();
+                  setTimeout(() => {
+                    this.methods.renderSoftKey();
+                    LOC_INPUT.blur();
+                  }, 100);
+                  break
+              }
+            });
+          });
+        }
+        nameDialog.dPadNavListener = {
+          arrowUp: function() {
+            const LOC_INPUT = document.getElementById('location-name');
+            LOC_INPUT.focus();
+          },
+          arrowDown: function() {
+            const LOC_INPUT = document.getElementById('location-name');
+            LOC_INPUT.focus();
+          }
+        }
+        this.$router.showBottomSheet(nameDialog);
+      },
+      renderSoftKey: function() {
         
       }
     },
@@ -422,7 +542,6 @@ window.addEventListener("load", function() {
     templateUrl: document.location.origin + '/templates/home.html',
     mounted: function() {
       this.$router.setHeaderTitle('Accessibility Suite');
-      // displayKaiAds();
     },
     unmounted: function() {
       this.verticalNavIndex = -1;
