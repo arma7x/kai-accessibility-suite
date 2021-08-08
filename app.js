@@ -501,10 +501,16 @@ window.addEventListener("load", function() {
         this.$router.showBottomSheet(nameDialog);
       },
       renderSoftKey: function() {
-        
+        const idx = this.verticalNavIndex - 1;
+        const location = this.data.locations[idx];
+        if (location) {
+          this.$router.setSoftKeyText('Open', '', 'More');
+        } else {
+          this.$router.setSoftKeyText('', '', '');
+        }
       }
     },
-    softKeyText: { left: '', center: 'SELECT', right: '' },
+    softKeyText: { left: '', center: '', right: '' },
     softKeyListener: {
       left: function() {},
       center: function() {
@@ -518,12 +524,14 @@ window.addEventListener("load", function() {
     dPadNavListener: {
       arrowUp: function() {
         this.navigateListNav(-1);
+        this.methods.renderSoftKey();
       },
       arrowRight: function() {
         // this.navigateTabNav(-1);
       },
       arrowDown: function() {
         this.navigateListNav(1);
+        this.methods.renderSoftKey();
       },
       arrowLeft: function() {
         // this.navigateTabNav(1);

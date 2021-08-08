@@ -4,5 +4,13 @@
     <span class="sr-only">You at Location Check-In. Total location is {{ total }}. Press Call to Check-in your current location. Use Arrow Up and Arrow Down button to navigate the check-in list. Press Back to return,</span>
   </div>
   <ul class="kui-list kai-container">
+    {{#locations}}
+    <li class="checkInNav">
+      <span class="sr-only">{{ name }}</span>
+      <div aria-hidden="true">
+        <div>{{ name }}</div>
+      </div>
+    </li>
+    {{/locations}}
   </ul>
 </div>
