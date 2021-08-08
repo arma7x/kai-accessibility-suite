@@ -1,6 +1,10 @@
-const getMyLocation = function() {
+const getMyLocation = function(strict = false) {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition((location) => {
+      if (strict) {
+        resolve(location);
+        return;
+      }
       fetch(`https://geocode.xyz/${location.coords.latitude},${location.coords.longitude}?geoit=json`)
       .then((response) => {
         if (response.status >= 400)
@@ -14,6 +18,10 @@ const getMyLocation = function() {
         resolve({ latitude: location.coords.latitude, longitude: location.coords.longitude, country: 'Unknown'});
       })
     }, (err) => {
+      if (strict) {
+        reject(err);
+        return;
+      }
       fetch(`https://malaysiaapi.herokuapp.com/geoservice/api/v1/get-ip-by-location`)
       .then((response) => {
         if (response.status >= 400)
@@ -76,6 +84,8 @@ const pushLocalNotification = function(text) {
 }
 
 window.addEventListener("load", function() {
+
+  localforage.setDriver(localforage.LOCALSTORAGE);
 
   const state = new KaiState({
     'weather': {},
@@ -283,6 +293,124 @@ window.addEventListener("load", function() {
     }
   });
 
+  const geolocation = new Kai({
+    name: 'geolocation',
+    data: {
+      title: 'geolocation',
+      opts: []
+    },
+    verticalNavClass: '.geolocationNav',
+    components: [],
+    templateUrl: document.location.origin + '/templates/geolocation.html',
+    mounted: function() {
+      this.$router.setHeaderTitle('Geolocation Services');
+    },
+    unmounted: function() {},
+    methods: {
+      shareMyLocation: function() {
+        this.$router.showDialog('Notice', `<div class="kai-list-nav"><span class="sr-only">Please wait.</span><span aria-hidden="true">Please wait</span></div>`, null, ' ', () => {}, ' ', () => {}, ' ', () => {}, () => {});
+        this.$router.showLoading();
+        getMyLocation(true)
+        .then((location) => {
+          console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
+          this.$router.hideBottomSheet();
+          this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to close.  Press Right Key to share location.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
+            var sms = new MozActivity({
+              name: "new",
+              data: {
+                type: "websms/sms",
+                body: `http://www.google.com/maps/place/${location.coords.latitude},${location.coords.longitude}`
+              }
+            });
+          }, 'Close', () => {}, ' ', () => {}, () => {});
+        })
+        .catch((e) => {
+          this.$router.hideBottomSheet();
+          this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">${e.message}. Press Left key to close.</span><span aria-hidden="true">${e.message}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+        })
+        .finally(() => {
+          this.$router.hideLoading();
+        });
+      },
+      gotoCheckIn: function() {
+        this.$router.push('checkIn');
+      }
+    },
+    softKeyText: { left: '', center: 'SELECT', right: '' },
+    softKeyListener: {
+      left: function() {},
+      center: function() {
+        const listNav = document.querySelectorAll(this.verticalNavClass);
+        if (this.verticalNavIndex > -1) {
+          listNav[this.verticalNavIndex].click();
+        }
+      },
+      right: function() {}
+    },
+    dPadNavListener: {
+      arrowUp: function() {
+        this.navigateListNav(-1);
+      },
+      arrowRight: function() {
+        // this.navigateTabNav(-1);
+      },
+      arrowDown: function() {
+        this.navigateListNav(1);
+      },
+      arrowLeft: function() {
+        // this.navigateTabNav(1);
+      },
+    }
+  });
+
+  const checkIn = new Kai({
+    name: 'checkIn',
+    data: {
+      title: 'checkIn',
+      opts: []
+    },
+    verticalNavClass: '.checkInNav',
+    components: [],
+    templateUrl: document.location.origin + '/templates/checkIn.html',
+    mounted: function() {
+      this.$router.setHeaderTitle('Location Check-In');
+    },
+    unmounted: function() {},
+    methods: {
+      shareMyLocation: function() {
+        
+      },
+      gotoCheckIn: function() {
+        
+      }
+    },
+    softKeyText: { left: '', center: 'SELECT', right: '' },
+    softKeyListener: {
+      left: function() {},
+      center: function() {
+        const listNav = document.querySelectorAll(this.verticalNavClass);
+        if (this.verticalNavIndex > -1) {
+          listNav[this.verticalNavIndex].click();
+        }
+      },
+      right: function() {}
+    },
+    dPadNavListener: {
+      arrowUp: function() {
+        this.navigateListNav(-1);
+      },
+      arrowRight: function() {
+        // this.navigateTabNav(-1);
+      },
+      arrowDown: function() {
+        this.navigateListNav(1);
+      },
+      arrowLeft: function() {
+        // this.navigateTabNav(1);
+      },
+    }
+  });
+
   const homescreen = new Kai({
     name: 'homescreen',
     data: {
@@ -359,6 +487,14 @@ window.addEventListener("load", function() {
       'weather' : {
         name: 'weather',
         component: weather
+      },
+      'geolocation' : {
+        name: 'geolocation',
+        component: geolocation
+      },
+      'checkIn' : {
+        name: 'checkIn',
+        component: checkIn
       },
     }
   });

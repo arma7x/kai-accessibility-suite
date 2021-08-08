@@ -1,0 +1,16 @@
+<div class="kui-flex-wrap">
+  <div class="kai-container geolocationNav" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
+    <div aria-hidden="true" style="font-weight:bold;text-transform:uppercase;text-decoration: underline;margin-top:5px;">Geolocation Services</div>
+    <span class="sr-only">You at Geolocation Services. Use Arrow Up and Arrow Down button to navigate the menu or press Back to return,</span>
+  </div>
+  <ul class="kui-list kai-container">
+    <li class="geolocationNav" @click="shareMyLocation()">
+      <span class="sr-only">Share My Location,</span>
+      <span aria-hidden="true">Share My Location</span>
+    </li>
+    <li class="geolocationNav" @click="gotoCheckIn()">
+      <span class="sr-only">Location Check-In,</span>
+      <span aria-hidden="true">Location Check-In</span>
+    </li>
+  </ul>
+</div>
