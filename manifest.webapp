@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "name": "Accessibility Suite",
-  "description": "Accessibility Suite is an app for visually impaired or blind person. Available features(screen reader) are date and time, battery and weather forecast",
+  "description": "Accessibility Suite is an app for visually impaired or blind person. Available features are date and time, battery, geolocation services and weather forecast",
   "launch_path": "/index.html",
   "theme": "#873eff",
   "theme_color": "#873eff",
@@ -35,8 +35,8 @@
   "locales": {
     "en-US": {
       "name": "Accessibility Suite",
-      "subtitle": "Accessibility Suite is an app for visually impaired or blind person. Available features(screen reader) are date and time, battery and weather forecast",
-      "description": "Accessibility Suite is an app for visually impaired or blind person. Available features(screen reader) are date and time, battery and weather forecast"
+      "subtitle": "Accessibility Suite is an app for visually impaired or blind person. Available features are date and time, battery, geolocation services and weather forecast",
+      "description": "Accessibility Suite is an app for visually impaired or blind person. Available features are date and time, battery, geolocation services and weather forecast"
     }
   },
   "default_locale": "en-US"

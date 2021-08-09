@@ -1,3 +1,52 @@
+function distVincenty(lat1, lon1, lat2, lon2) {
+  var a = 6378137,
+      b = 6356752.314245,
+      f = 1 / 298.257223563; // WGS-84 ellipsoid params
+  var L = (lon2 - lon1).toRad();
+  var U1 = Math.atan((1 - f) * Math.tan(lat1.toRad()));
+  var U2 = Math.atan((1 - f) * Math.tan(lat2.toRad()));
+  var sinU1 = Math.sin(U1),
+      cosU1 = Math.cos(U1);
+  var sinU2 = Math.sin(U2),
+      cosU2 = Math.cos(U2);
+
+  var lambda = L,
+      lambdaP, iterLimit = 100;
+  do {
+    var sinLambda = Math.sin(lambda),
+        cosLambda = Math.cos(lambda);
+    var sinSigma = Math.sqrt((cosU2 * sinLambda) * (cosU2 * sinLambda) + (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda) * (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda));
+    if (sinSigma == 0) return 0; // co-incident points
+    var cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
+    var sigma = Math.atan2(sinSigma, cosSigma);
+    var sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
+    var cosSqAlpha = 1 - sinAlpha * sinAlpha;
+    var cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
+    if (isNaN(cos2SigmaM)) cos2SigmaM = 0; // equatorial line: cosSqAlpha=0 (§6)
+    var C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
+    lambdaP = lambda;
+    lambda = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
+  } while (Math.abs(lambda - lambdaP) > 1e-12 && --iterLimit > 0);
+
+  if (iterLimit == 0) return NaN // formula failed to converge
+  var uSq = cosSqAlpha * (a * a - b * b) / (b * b);
+  var A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+  var B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+  var deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) - B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
+  var s = b * A * (sigma - deltaSigma);
+
+  s = s.toFixed(3); // round to 1mm precision
+  return s;
+}
+
+Number.prototype.toRad = function() {
+    return this * Math.PI / 180;
+}
+
+Number.prototype.toDeg = function() {
+    return this * 180 / Math.PI;
+}
+
 const getMyLocation = function(strict = false) {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition((location) => {
@@ -314,7 +363,7 @@ window.addEventListener("load", function() {
         .then((location) => {
           console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
           this.$router.hideBottomSheet();
-          this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to share location.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
+          this.$router.showDialog('Position Accuracy', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to share location.</span><span aria-hidden="true">Position accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
             var picker = new MozActivity({
               name: "pick",
               data: {
@@ -424,7 +473,7 @@ window.addEventListener("load", function() {
             this.data.coords = {latitude: location.coords.latitude, longitude: location.coords.longitude};
             console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
             this.$router.hideBottomSheet();
-            this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
+            this.$router.showDialog('Position Accuracy', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Position accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
               this.methods.checkInLocation();
             }, 'Cancel', () => {}, ' ', () => {}, () => {});
           })
@@ -438,7 +487,7 @@ window.addEventListener("load", function() {
         }
       },
       checkInLocation: function() {
-        const nameDialog = Kai.createDialog('Location Name', '<label class="sr-only" for="location-name">Enter your current location name, Left Key to Cancel, Right Key to Save,</label><div><input id="location-name" name="location-name" placeholder="Your current location name" class="kui-input" type="text" /></div>', null, '', undefined, '', undefined, '', undefined, undefined, this.$router);
+        const nameDialog = Kai.createDialog('Location Name', '<label class="sr-only" for="location-name">Enter your current location name. Left Key to Cancel. Right Key to Save. Call Button to listen for your input text.</label><div><input id="location-name" name="location-name" placeholder="Your current location name" class="kui-input" type="text" /></div>', null, '', undefined, '', undefined, '', undefined, undefined, this.$router);
         nameDialog.mounted = () => {
           setTimeout(() => {
             setTimeout(() => {
@@ -452,6 +501,11 @@ window.addEventListener("load", function() {
             LOC_INPUT.focus();
             LOC_INPUT.addEventListener('keydown', (evt) => {
               switch (evt.key) {
+                case 'Call':
+                  if (LOC_INPUT.value || LOC_INPUT.value !== '') {
+                    pushLocalNotification(`Input value is ${LOC_INPUT.value}`);
+                  }
+                  break
                 case 'Backspace':
                 case 'EndCall':
                   if (document.activeElement.value.length === 0) {
@@ -490,12 +544,12 @@ window.addEventListener("load", function() {
                     setTimeout(() => {
                       this.$router.hideLoading();
                       this.$router.hideBottomSheet();
-                      this.methods.renderSoftKey();
                       LOC_INPUT.blur();
                       this.setData({
                         locations: __locations__,
                         total: __locations__.length,
                       });
+                      this.methods.renderSoftKey();
                     }, 2000);
                   });
                   break
@@ -562,6 +616,88 @@ window.addEventListener("load", function() {
     softKeyText: { left: 'Search', center: '', right: '' },
     softKeyListener: {
       left: function() {
+        const searchDialog = Kai.createDialog('Search Location', '<label class="sr-only" for="search-name">Enter location name or leave it blank to reset search. Left Key to Cancel. Right Key to Search. Call Button to listen for your input text.</label><div><input id="search-name" name="search-name" placeholder="Enter location name" class="kui-input" type="text" /></div>', null, '', undefined, '', undefined, '', undefined, undefined, this.$router);
+        searchDialog.mounted = () => {
+          setTimeout(() => {
+            setTimeout(() => {
+              this.$router.setSoftKeyText('Cancel' , '', 'Search');
+              SEARCH_INPUT.focus();
+            }, 103);
+            const SEARCH_INPUT = document.getElementById('search-name');
+            if (!SEARCH_INPUT) {
+              return;
+            }
+            SEARCH_INPUT.focus();
+            SEARCH_INPUT.addEventListener('keydown', (evt) => {
+              switch (evt.key) {
+                case 'Call':
+                  if (SEARCH_INPUT.value || SEARCH_INPUT.value !== '') {
+                    pushLocalNotification(`Input value is ${SEARCH_INPUT.value}`);
+                  }
+                  break
+                case 'Backspace':
+                case 'EndCall':
+                  if (document.activeElement.value.length === 0) {
+                    this.$router.hideBottomSheet();
+                    setTimeout(() => {
+                      this.methods.renderSoftKey();
+                      SEARCH_INPUT.blur();
+                    }, 100);
+                  }
+                  break
+                case 'SoftRight':
+                  this.$router.hideBottomSheet();
+                  setTimeout(() => {
+                    this.verticalNavIndex = 0;
+                    this.setData({
+                      locations: [],
+                      total: 0,
+                    });
+                    SEARCH_INPUT.value
+                    localforage.getItem('__locations__')
+                    .then((__locations__) => {
+                      if (__locations__ == null) {
+                        __locations__ = [];
+                      }
+                      var results = [];
+                      __locations__.forEach((loc) => {
+                        if (loc.name.toLowerCase().indexOf(SEARCH_INPUT.value.toLowerCase()) > -1 || !SEARCH_INPUT.value || SEARCH_INPUT.value == '') {
+                          results.push(loc);
+                        }
+                      });
+                      console.log(results);
+                      this.setData({
+                        locations: results,
+                        total: results.length,
+                      });
+                      this.verticalNavIndex = -1;
+                      this.navigateListNav(1);
+                    });
+                    SEARCH_INPUT.blur();
+                  }, 100);
+                  break
+                case 'SoftLeft':
+                  this.$router.hideBottomSheet();
+                  setTimeout(() => {
+                    this.methods.renderSoftKey();
+                    SEARCH_INPUT.blur();
+                  }, 100);
+                  break
+              }
+            });
+          });
+        }
+        searchDialog.dPadNavListener = {
+          arrowUp: function() {
+            const SEARCH_INPUT = document.getElementById('search-name');
+            SEARCH_INPUT.focus();
+          },
+          arrowDown: function() {
+            const SEARCH_INPUT = document.getElementById('search-name');
+            SEARCH_INPUT.focus();
+          }
+        }
+        this.$router.showBottomSheet(searchDialog);
       },
       center: function() {
         const listNav = document.querySelectorAll(this.verticalNavClass);
@@ -576,7 +712,7 @@ window.addEventListener("load", function() {
           var menus = [
             { "text": "Open in Google Map" },
             { "text": "Generate Google Map QR Code" },
-            { "text": "Get Distance from my location" },
+            { "text": "Distance from my location" },
             { "text": "Share this location" },
             { "text": "Remove this location" },
           ];
@@ -614,8 +750,28 @@ window.addEventListener("load", function() {
                 picker.onerror = (err) => {
                   this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">Operation cancelled. Press Left key to close.</span><span aria-hidden="true">Operation cancelled</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
                 }
-              } else if (selected.text === 'Get Distance from my location') {
-                
+              } else if (selected.text === 'Distance from my location') {
+                this.$router.showDialog('Notice', `<div class="kai-list-nav"><span class="sr-only">Please wait.</span><span aria-hidden="true">Please wait</span></div>`, null, ' ', () => {}, ' ', () => {}, ' ', () => {}, () => {});
+                this.$router.showLoading();
+                getMyLocation(true)
+                .then((_location) => {
+                  var dis = distVincenty(_location.coords.latitude, _location.coords.longitude, location.latitude, location.longitude);
+                  if (dis > 1000) {
+                    dis = `${(parseFloat(dis)/1000).toFixed(2).toString()}km`;
+                  } else {
+                    dis = `${parseFloat(dis).toFixed(2).toString()}m`;
+                  }
+                  console.log(_location.coords.accuracy, _location.coords.latitude, _location.coords.longitude);
+                  this.$router.hideBottomSheet();
+                  this.$router.showDialog('Distance', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${_location.coords.accuracy.toFixed(2)}m. Your distance from ${location.name} is ${dis}. Press Left key to close.</span><span aria-hidden="true">Position accuracy is ${_location.coords.accuracy.toFixed(2)}m. Your distance from ${location.name} is ${dis}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+                })
+                .catch((e) => {
+                  this.$router.hideBottomSheet();
+                  this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">${e.message}. Press Left key to close.</span><span aria-hidden="true">${e.message}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+                })
+                .finally(() => {
+                  this.$router.hideLoading();
+                });
               } else if (selected.text === 'Generate Google Map QR Code') {
                 this.$router.showDialog('QR CODE', `<div class="kai-list-nav"><span class="sr-only">${location.name} QR Code is ready. Press Left key to close.</span><div id="qrcode" aria-hidden="true" style="margin-left:25px;"></div></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
                 setTimeout(() => {

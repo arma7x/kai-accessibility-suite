@@ -2,12 +2,12 @@
   <div class="kai-container checkInNav" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
     <div aria-hidden="true" style="font-weight:bold;text-transform:uppercase;text-decoration: underline;margin-top:5px;">Check-In History</div>
     <div aria-hidden="true"><small>(Press Call to Check-in)</small></div>
-    <span class="sr-only">You at Check-In History. Total location is {{ total }}. Press Call to check-in your current location. Use Arrow Up and Arrow Down button to navigate the check-in history list. Press Back to return,</span>
+    <span class="sr-only">You at Check-In History. Total location is {{ total }}. Press the Call Button to check-in to your current location. Use Arrow Up and Arrow Down button to navigate between check-in history list. Press Left Key to search check-in history. Press Back to return,</span>
   </div>
   <ul class="kui-list kai-container">
     {{#locations}}
     <li class="checkInNav">
-      <span class="sr-only">{{ name }}</span>
+      <span class="sr-only">{{ name }}, Press Right key for more options.</span>
       <div aria-hidden="true">
         <div>{{ name }}</div>
       </div>
