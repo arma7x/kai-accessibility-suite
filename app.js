@@ -314,15 +314,36 @@ window.addEventListener("load", function() {
         .then((location) => {
           console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
           this.$router.hideBottomSheet();
-          this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to close.  Press Right Key to share location.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
-            var sms = new MozActivity({
-              name: "new",
+          this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to share location.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
+            var picker = new MozActivity({
+              name: "pick",
               data: {
-                type: "websms/sms",
-                body: `http://www.google.com/maps/place/${location.coords.latitude},${location.coords.longitude}`
+                type: ["webcontacts/contact"],
+                fullContact: "true",
               }
             });
-          }, 'Close', () => {}, ' ', () => {}, () => {});
+            picker.onsuccess = (result) => {
+              const contact = result.target.result.contact;
+              if (contact) {
+                console.log(contact.name[0], contact.tel[0].value);
+                this.$router.showDialog('Confirmation', `<div class="kai-list-nav"><span class="sr-only">Share your location to ${contact.name[0]}, phone number is ${contact.tel[0].value}. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Share your location to ${contact.name[0]}, phone number is ${contact.tel[0].value}</span></div>`, null, 'Continue', () => {
+                  var sms = new MozActivity({
+                    name: "new",
+                    data: {
+                      type: "websms/sms",
+                      body: `https://www.google.com/maps/place/${location.coords.latitude},${location.coords.longitude}`,
+                      number: contact.tel[0].value
+                    }
+                  });
+                }, 'Cancel', () => {}, ' ', () => {}, () => {});
+              } else {
+                this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">Operation cancelled. Press Left key to close.</span><span aria-hidden="true">Operation cancelled</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+              }
+            }
+            picker.onerror = (err) => {
+              this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">Operation cancelled. Press Left key to close.</span><span aria-hidden="true">Operation cancelled</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+            }
+          }, 'Cancel', () => {}, ' ', () => {}, () => {});
         })
         .catch((e) => {
           this.$router.hideBottomSheet();
@@ -375,7 +396,7 @@ window.addEventListener("load", function() {
     components: [],
     templateUrl: document.location.origin + '/templates/checkIn.html',
     mounted: function() {
-      //this.$router.setHeaderTitle('Location Check-In');
+      //this.$router.setHeaderTitle('Check-In History');
       localforage.getItem('__locations__')
       .then((__locations__) => {
         if (__locations__ == null) {
@@ -403,7 +424,7 @@ window.addEventListener("load", function() {
             this.data.coords = {latitude: location.coords.latitude, longitude: location.coords.longitude};
             console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
             this.$router.hideBottomSheet();
-            this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel.  Press Right Key to continue.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
+            this.$router.showDialog('Accuracy', `<div class="kai-list-nav"><span class="sr-only">Accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
               this.methods.checkInLocation();
             }, 'Cancel', () => {}, ' ', () => {}, () => {});
           })
@@ -501,24 +522,46 @@ window.addEventListener("load", function() {
         }
         this.$router.showBottomSheet(nameDialog);
       },
+      removeLocation: function(idx) {
+        this.data.locations.splice(idx, 1);
+        localforage.setItem('__locations__', this.data.locations)
+        .then(() => {
+          return localforage.getItem('__locations__');
+        })
+        .then((__locations__) => {
+          if (__locations__ == null) {
+            __locations__ = [];
+          }
+          if (idx === __locations__.length) {
+            const LIS = document.querySelectorAll(this.verticalNavClass);
+            const old = LIS[this.verticalNavIndex];
+            if (old) {
+              old.classList.remove("focus");
+            }
+            this.verticalNavIndex -= 1;
+          }
+          pushLocalNotification('Done');
+          setTimeout(() => {
+            this.setData({
+              locations: __locations__,
+              total: __locations__.length,
+            });
+          }, 2000);
+        })
+      },
       renderSoftKey: function() {
         const idx = this.verticalNavIndex - 1;
         const location = this.data.locations[idx];
         if (location) {
-          this.$router.setSoftKeyText('Open', '', 'More');
+          this.$router.setSoftKeyText('Search', '', 'More');
         } else {
-          this.$router.setSoftKeyText('', '', '');
+          this.$router.setSoftKeyText('Search', '', '');
         }
       }
     },
-    softKeyText: { left: '', center: '', right: '' },
+    softKeyText: { left: 'Search', center: '', right: '' },
     softKeyListener: {
       left: function() {
-        const idx = this.verticalNavIndex - 1;
-        const location = this.data.locations[idx];
-        if (location) {
-          window.open(`http://www.google.com/maps/place/${location.latitude},${location.longitude}`);
-        }
       },
       center: function() {
         const listNav = document.querySelectorAll(this.verticalNavClass);
@@ -526,7 +569,71 @@ window.addEventListener("load", function() {
           listNav[this.verticalNavIndex].click();
         }
       },
-      right: function() {}
+      right: function() {
+        const idx = this.verticalNavIndex - 1;
+        const location = this.data.locations[idx];
+        if (location) {
+          var menus = [
+            { "text": "Open in Google Map" },
+            { "text": "Generate Google Map QR Code" },
+            { "text": "Get Distance from my location" },
+            { "text": "Share this location" },
+            { "text": "Remove this location" },
+          ];
+          this.$router.showOptionMenu('More', menus, 'Select', (selected) => {
+              if (selected.text === 'Remove this location') {
+                this.$router.showDialog('Remove Location', `<div class="kai-list-nav"><span class="sr-only">Are you sure to remove ${location.name} ?. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Are you sure to remove ${location.name} ?</span></div>`, null, 'Continue', () => {
+                  this.methods.removeLocation(idx);
+                }, 'Cancel', () => {}, ' ', () => {}, () => {});
+              } else if (selected.text === 'Share this location') {
+                var picker = new MozActivity({
+                  name: "pick",
+                  data: {
+                    type: ["webcontacts/contact"],
+                    fullContact: "true",
+                  }
+                });
+                picker.onsuccess = (result) => {
+                  const contact = result.target.result.contact;
+                  if (contact) {
+                    console.log(contact.name[0], contact.tel[0].value);
+                    this.$router.showDialog('Confirmation', `<div class="kai-list-nav"><span class="sr-only">Share ${location.name} to ${contact.name[0]}, phone number is ${contact.tel[0].value}. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Share ${location.name} to ${contact.name[0]}, phone number is ${contact.tel[0].value}</span></div>`, null, 'Continue', () => {
+                      var sms = new MozActivity({
+                        name: "new",
+                        data: {
+                          type: "websms/sms",
+                          body: `https://www.google.com/maps/place/${location.latitude},${location.longitude}`,
+                          number: contact.tel[0].value
+                        }
+                      });
+                    }, 'Cancel', () => {}, ' ', () => {}, () => {});
+                  } else {
+                    this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">Operation cancelled. Press Left key to close.</span><span aria-hidden="true">Operation cancelled</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+                  }
+                }
+                picker.onerror = (err) => {
+                  this.$router.showDialog('Error', `<div class="kai-list-nav"><span class="sr-only">Operation cancelled. Press Left key to close.</span><span aria-hidden="true">Operation cancelled</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+                }
+              } else if (selected.text === 'Get Distance from my location') {
+                
+              } else if (selected.text === 'Generate Google Map QR Code') {
+                this.$router.showDialog('QR CODE', `<div class="kai-list-nav"><span class="sr-only">${location.name} QR Code is ready. Press Left key to close.</span><div id="qrcode" aria-hidden="true" style="margin-left:25px;"></div></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
+                setTimeout(() => {
+                  new QRCode(document.getElementById("qrcode"), {
+                    text: `https://www.google.com/maps/place/${location.latitude},${location.longitude}`,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                  });
+                }, 100);
+              } else if (selected.text === 'Open in Google Map') {
+                window.open(`https://www.google.com/maps/place/${location.latitude},${location.longitude}`);
+              }
+          }, () => {});
+        }
+      }
     },
     dPadNavListener: {
       arrowUp: function() {
