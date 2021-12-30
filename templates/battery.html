@@ -1,22 +1,22 @@
 <div class="kui-flex-wrap">
-  <div class="kai-container batteryNav" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
+  <div class="kai-container batteryNav kui-divider" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
     <div aria-hidden="true" style="font-weight:bold;text-transform:uppercase;text-decoration: underline;margin-top:5px;">Battery Info</div>
     <span class="sr-only">You at Battery Info. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,</span>
   </div>
   <ul class="kui-list kai-container">
-    <li class="batteryNav" @click="getBatteryInfo(1)">
+    <li class="batteryNav kui-divider" @click="getBatteryInfo(1)">
       <span class="sr-only">Press Enter to get battery level,</span>
       <span aria-hidden="true">Get Battery Level</span>
     </li>
-    <li class="batteryNav" @click="getBatteryInfo(2)">
+    <li class="batteryNav kui-divider" @click="getBatteryInfo(2)">
       <span class="sr-only">Press Enter to get battery charging status,</span>
       <span aria-hidden="true">Get Battery Charging Status</span>
     </li>
-    <li class="batteryNav" @click="getBatteryInfo(3)">
+    <li class="batteryNav kui-divider" @click="getBatteryInfo(3)">
       <span class="sr-only">Press Enter to get battery temperature level,</span>
       <span aria-hidden="true">Get Battery Temperature Level</span>
     </li>
-    <li class="batteryNav" @click="getBatteryInfo(4)">
+    <li class="batteryNav kui-divider" @click="getBatteryInfo(4)">
       <span class="sr-only">Press Enter to get battery health status,</span>
       <span aria-hidden="true">Get Battery Health Status</span>
     </li>

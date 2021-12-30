@@ -1,26 +1,26 @@
 <div class="kui-flex-wrap">
-  <div class="kai-container homeNav" style="padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
+  <div class="kai-container homeNav kui-divider" style="padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
     <div aria-hidden="true" style="font-weight:bold;text-transform:uppercase;text-decoration: underline;margin-top:5px;">Homescreen</div>
     <span class="sr-only">You at Homescreen. Use Arrow Up and Arrow Down button to navigate the menu,</span>
   </div>
   <ul class="kui-list kai-container">
-    <li class="homeNav" @click="goToScreen('battery')">
+    <li class="homeNav kui-divider" @click="goToScreen('battery')">
       <span class="sr-only">Get Battery Info,</span>
       <span aria-hidden="true">Battery Info</span>
     </li>
-    <li class="homeNav" @click="goToScreen('dateTime')">
+    <li class="homeNav kui-divider" @click="goToScreen('dateTime')">
       <span class="sr-only">Get Date and Time Info,</span>
       <span aria-hidden="true">Date and Time Info</span>
     </li>
-    <li class="homeNav" @click="goToScreen('geolocation')">
+    <li class="homeNav kui-divider" @click="goToScreen('geolocation')">
       <span class="sr-only">Get Geolocation Services,</span>
       <span aria-hidden="true">Geolocation Services</span>
     </li>
-    <li class="homeNav" @click="goToScreen('weather')">
+    <li class="homeNav kui-divider" @click="goToScreen('weather')">
       <span class="sr-only">Get Weather Forecast,</span>
       <span aria-hidden="true">Weather Forecast</span>
     </li>
-    <li class="homeNav" @click="exitApp()">
+    <li class="homeNav kui-divider" @click="exitApp()">
       <span class="sr-only">Press Enter to exit the app,</span>
       <span aria-hidden="true">Exit App</span>
     </li>

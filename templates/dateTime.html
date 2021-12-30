@@ -1,18 +1,18 @@
 <div class="kui-flex-wrap">
-  <div class="kai-container dateTimeNav" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
+  <div class="kai-container dateTimeNav kui-divider" style="transform:uppercase;padding:0px 4px;height:60px;max-height:60px;background-color:#320374;color:#fff;display:flex;flex-direction:column;justify-content:space-around;align-items:center;align-content:space-between;">
     <div aria-hidden="true" style="font-weight:bold;text-transform:uppercase;text-decoration: underline;margin-top:5px;">Date and Time Info</div>
     <span class="sr-only">You at Date and Time Info. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,</span>
   </div>
   <ul class="kui-list kai-container">
-    <li class="dateTimeNav" @click="getCurrentTime(1)">
+    <li class="dateTimeNav kui-divider" @click="getCurrentTime(1)">
       <span class="sr-only">Press Enter to get current time,</span>
       <span aria-hidden="true">Get Current Time</span>
     </li>
-    <li class="dateTimeNav" @click="getCurrentTime(2)">
+    <li class="dateTimeNav kui-divider" @click="getCurrentTime(2)">
       <span class="sr-only">Press Enter to get current date,</span>
       <span aria-hidden="true">Get Current Date</span>
     </li>
-    <li class="dateTimeNav" @click="getCurrentTime(3)">
+    <li class="dateTimeNav kui-divider" @click="getCurrentTime(3)">
       <span class="sr-only">Press Enter to get current time and date,</span>
       <span aria-hidden="true">Get Current Time And Date</span>
     </li>
