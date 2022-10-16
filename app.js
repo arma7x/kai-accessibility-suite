@@ -71,7 +71,7 @@ const getMyLocation = function(strict = false) {
         reject(err);
         return;
       }
-      fetch(`https://malaysiaapi.herokuapp.com/geoservice/api/v1/get-ip-by-location`)
+      fetch(`https://malaysiaapi-arma7x.koyeb.app/geoservice/api/v1/get-ip-by-location`)
       .then((response) => {
         if (response.status >= 400)
           return Promise.reject(response.status);
@@ -88,14 +88,14 @@ const getMyLocation = function(strict = false) {
 }
 
 const getWeatherForecast = function(lat, long) {
-  return fetch(`https://malaysiaapi.herokuapp.com/proxy?url=https://www.metaweather.com/api/location/search/?lattlong=${lat},${long}`)
+  return fetch(`https://malaysiaapi-arma7x.koyeb.app/proxy?url=https://www.metaweather.com/api/location/search/?lattlong=${lat},${long}`)
   .then((response) => {
     if (response.status >= 400)
       return Promise.reject(response.status);
     return response.json()
   })
   .then((json) => {
-    return fetch(`https://malaysiaapi.herokuapp.com/proxy?url=https://www.metaweather.com/api/location/${json[0].woeid}/`)
+    return fetch(`https://malaysiaapi-arma7x.koyeb.app/proxy?url=https://www.metaweather.com/api/location/${json[0].woeid}/`)
   })
   .then((response) => {
     if (response.status >= 400)
@@ -959,7 +959,7 @@ window.addEventListener("load", function() {
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      
+
     } else if (document.visibilityState === 'visible') {
       const main = app.$router.stack[app.$router.stack.length - 1];
       if (main.name === 'homescreen') {
