@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "name": "Accessibility Suite",
   "description": "Accessibility Suite is an app for visually impaired or blind person. Available features are date and time, battery, geolocation services and weather forecast",
   "launch_path": "/index.html",
