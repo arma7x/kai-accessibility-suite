@@ -1,3 +1,19 @@
+const WMO_CODE = {"10":"Mist","11":"Patches of shallow fog or ice fog at the station, whether on land or sea, not deeper than about 2 metres on land or 10 metres at sea","12":"More or less continuous shallow fog or ice fog at the station, whether on land or sea, not deeper than about 2 metres on land or 10 metres at sea","13":"Lightning visible, no thunder heard","14":"Precipitation within sight, not reaching the ground or the surface of the sea","15":"Precipitation within sight, reaching the ground or the surface of the sea, but distant (i.e. estimated to be more than 5 km) from the station","16":"Precipitation within sight, reaching the ground or the surface of the sea, near to, but not at the station","17":"Thunderstorm, but no precipitation at the time of observation","18":"Squalls at or within sight of the station during the preceding hour or at the time of observation","19":"Funnel cloud(s) at or within sight of the station during the preceding hour or at the time of observation","20":"Drizzle (not freezing) or snow grains not falling as shower(s)","21":"Rain (not freezing) not falling as shower(s)","22":"Snow not falling as shower(s)","23":"Rain and snow or ice pellets, type (a) not falling as shower(s)","24":"Freezing drizzle or freezing rain not falling as shower(s)","25":"Shower(s) of rain","26":"Shower(s) of snow, or of rain and snow","27":"Shower(s) of hail*, or of rain and hail*","28":"Fog or ice fog","29":"Thunderstorm (with or without precipitation)","30":"Slight or moderate duststorm or sandstorm - has decreased during the preceding hour","31":"Slight or moderate duststorm or sandstorm - no appreciable change during the preceding hour","32":"Slight or moderate duststorm or sandstorm - has begun or has increased during the preceding hour","33":"Severe duststorm or sandstorm - has decreased during the preceding hour","34":"Severe duststorm or sandstorm - no appreciable change during the preceding hour","35":"Severe duststorm or sandstorm - has begun or has increased during the preceding hour","36":"Slight or moderate blowing snow generally low (below eye level)","37":"Heavy drifting snow generally low (below eye level)","38":"Slight or moderate blowing snow generally high (above eye level)","39":"Heavy drifting snow generally high (above eye level)","40":"Fog or ice fog at a distance at the time of observation, but not at the station during the preceding hour, the fog or ice fog extending to a level above that of the observer","41":"Fog or ice fog in patches","42":"Fog or ice fog, sky visible has become thinner during the preceding hour","43":"Fog or ice fog, sky invisible has become thinner during the preceding hour","44":"Fog or ice fog, sky visible no appreciable change during the preceding hour","45":"Fog or ice fog, sky invisible no appreciable change during the preceding hour","46":"Fog or ice fog, sky visible has begun or has become thicker during the preceding hour","47":"Fog or ice fog, sky invisible has begun or has become thicker during the preceding hour","48":"Fog, depositing rime, sky visible","49":"Fog, depositing rime, sky invisible","50":"Drizzle, not freezing, intermittent slight at time of observation","51":"Drizzle, not freezing, continuous slight at time of observation","52":"Drizzle, not freezing, intermittent moderate at time of observation","53":"Drizzle, not freezing, continuous moderate at time of observation","54":"Drizzle, not freezing, intermittent heavy (dence) at time of observation","55":"Drizzle, not freezing, continuous heavy (dence) at time of observation","56":"Drizzle, freezing, slight","57":"Drizzle, freezing, moderate or heavy (dence)","58":"Drizzle and rain, slight","59":"Drizzle and rain, moderate or heavy","60":"Rain, not freezing, intermittent slight at time of observation","61":"Rain, not freezing, continous slight at time of observation","62":"Rain, not freezing, intermittent moderate at time of observation","63":"Rain, not freezing, continuous moderate at time of observation","64":"Rain, not freezing, intermittent heavy at time of observation","65":"Rain, not freezing, continuous heavy at time of observation","66":"Rain, freezing, slight","67":"Rain, freezing, moderate or heavy","68":"Rain, or drizzle and snow, slight","69":"Rain, or drizzle and snow, moderate or heavy","70":"Intermittent fall of snow flakes slight at time of observation","71":"Continuous fall of snow flakes slight at time of observation","72":"Intermittent fall of snow flakes moderate at time of observation","73":"Continuous fall of snow flakes moderate at time of observation","74":"Intermittent fall of snow flakes heavy at time of observation","75":"Continuous fall of snow flakes heavy at time of observation","76":"Ice prisms (with or without fog)","77":"Snow grains (with or without fog)","78":"Isolated starlike snow crystals (with or without fog)","79":"Ice pellets, type (a)","80":"Rain shower(s), slight","81":"Rain shower(s), moderate or heavy","82":"Rain shower(s), violent","83":"Shower(s) of rain and snow mixed, slight","84":"Shower(s) of rain and snow mixed, moderate or heavy","85":"Snow shower(s), slight","86":"Snow shower(s), moderate or heavy","87":"Shower(s) of snow pellets or ice pellets, type (b), with or without rain or rain and snow mixed - slight","88":"Shower(s) of snow pellets or ice pellets, type (b), with or without rain or rain and snow mixed - moderate or heavy","89":"Shower(s) of hail*, with or without rain or rain and snow mixed, not associated with thunder - slight","90":"Shower(s) of hail*, with or without rain or rain and snow mixed, not associated with thunder - moderate or heavy","91":"Slight rain at time of observation - thunderstorm during the preceding hour but not at time of observation","92":"Moderate or heavy rain at time of observation - thunderstorm during the preceding hour but not at time of observation","93":"Slight snow, or rain and snow mixed or hail at time of observation - thunderstorm during the preceding hour but not at time of observation","94":"Moderate or heavy snow, or rain and snow mixed or hail at time of observation - thunderstorm during the preceding hour but not at time of observation","95":"Thunderstorm, slight or moderate, without hail, but with rain and/or snow at time of observation - thunderstorm at time of observation","96":"Thunderstorm, slight or moderate, with hail at time of observation - thunderstorm at time of observation","97":"Thunderstorm, heavy, without hail, but with rain and/or snow at time of observation - thunderstorm at time of observation","98":"Thunderstorm combined with duststorm or sandstorm at time of observation - thunderstorm at time of observation","99":"Thunderstorm, heavy, with hail at time of observation - thunderstorm at time of observation","00":"Cloud development not observed or not observable *","01":"Clouds generally dissolving or becoming less developed *","02":"State of sky on the whole unchanged *","03":"Clouds generally forming or developing *","04":"Visibility reduced by smoke, e.g. veldt or forest fires, industrial smoke or volcanic ashes","05":"Haze","06":"Widespread dust in suspension in the air, not raised by wind at or near the station at the time of observation","07":"Dust or sand raised by wind at or near the station at the time of observation, but no well developed dust whirl(s) or sand whirl(s), and no duststorm or sandstorm seen","08":"Well developed dust whirl(s) or sand whirl(s) seen at or near the station during the preceding hour or at the time ot observation, but no duststorm or sandstorm","09":"Duststorm or sandstorm within sight at the time of observation, or at the station during the preceding hour"};
+
+if (!String.prototype.replaceAll) {
+  String.prototype.replaceAll = function(str, newStr) {
+
+    // If a regex pattern
+    if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+      return this.replace(str, newStr);
+    }
+
+    // If a string
+    return this.replace(new RegExp(str, 'g'), newStr);
+
+  };
+}
+
 function distVincenty(lat1, lon1, lat2, lon2) {
   var a = 6378137,
       b = 6356752.314245,
@@ -88,15 +104,8 @@ const getMyLocation = function(strict = false) {
 }
 
 const getWeatherForecast = function(lat, long) {
-  return fetch(`https://malaysiaapi-arma7x.koyeb.app/proxy?url=https://www.metaweather.com/api/location/search/?lattlong=${lat},${long}`)
-  .then((response) => {
-    if (response.status >= 400)
-      return Promise.reject(response.status);
-    return response.json()
-  })
-  .then((json) => {
-    return fetch(`https://malaysiaapi-arma7x.koyeb.app/proxy?url=https://www.metaweather.com/api/location/${json[0].woeid}/`)
-  })
+  const u = encodeURIComponent(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max&timezone=auto`)
+  return fetch(`https://malaysiaapi-arma7x.koyeb.app/proxy?url=${u}`)
   .then((response) => {
     if (response.status >= 400)
       return Promise.reject(response.status);
@@ -276,6 +285,7 @@ window.addEventListener("load", function() {
           return getWeatherForecast(pos.latitude, pos.longitude);
         })
         .then((forecast) => {
+          forecast.timezone = forecast.timezone.replaceAll('/', ', ').replaceAll('_', ' ');
           pushLocalNotification(`Success`);
           setTimeout(() => {
             this.$state.setState('weather', forecast);
@@ -288,18 +298,17 @@ window.addEventListener("load", function() {
       weatherEvent: function(forecast) {
         if (Object.keys(forecast).length > 0) {
           var data = [];
-          if (forecast.title) {
+          if (forecast.daily) {
             data.push({
-              'screen_reader': `${forecast.title} Weather Forecast for the next 6 days. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,`,
+              'screen_reader': `${forecast.timezone} Weather Forecast for the next 7 days. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,`,
               'text': `Weather Forecast`,
-              'subtext': `${forecast.title}`,
+              'subtext': `${forecast.timezone}`,
             });
-            for (var f in forecast.consolidated_weather) {
-              const d = forecast.consolidated_weather[f];
+            for (var f in forecast.daily.time) {
               data.push({
-                'screen_reader': `Weather forecast for ${new Date(d.applicable_date).toDateString()}, weather condition is ${d.weather_state_name}, humidity is ${d.humidity}%, minimum temperature is ${d.min_temp.toFixed()} degree celcius, maximum temperature is ${d.max_temp.toFixed()} degree celcius, wind speed is ${d.wind_speed.toFixed()}mph, forecast accuracy is ${d.predictability}%`,
-                'text': `${new Date(d.applicable_date).toDateString()}`,
-                'subtext': `${d.weather_state_name}, min ${d.min_temp.toFixed()}°, max ${d.max_temp.toFixed()}°`,
+                'screen_reader': `Weather forecast on ${forecast.daily.time[f]} for ${forecast.timezone}. Minimum temperature is ${forecast.daily.temperature_2m_min[f]} degree celcius, maximum temperature is ${forecast.daily.temperature_2m_max[f]} degree celcius, wind speed is ${forecast.daily.windspeed_10m_max[f]}mph. Weather condition is ${WMO_CODE[forecast.daily.weathercode[f]]}`,
+                'text': `${forecast.daily.time[f]}`,
+                'subtext': `Min ${forecast.daily.temperature_2m_min[f]}${forecast.daily_units['temperature_2m_min']}, Max ${forecast.daily.temperature_2m_max[f]}${forecast.daily_units['temperature_2m_max']}, WMO Code ${forecast.daily.weathercode[f]}`,
               });
             }
             this.setData({opts: []});
@@ -361,7 +370,7 @@ window.addEventListener("load", function() {
         this.$router.showLoading();
         getMyLocation(true)
         .then((location) => {
-          console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
+          // console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
           this.$router.hideBottomSheet();
           this.$router.showDialog('Position Accuracy', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to share location.</span><span aria-hidden="true">Position accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'SHARE', () => {
             var picker = new MozActivity({
@@ -374,7 +383,7 @@ window.addEventListener("load", function() {
             picker.onsuccess = (result) => {
               const contact = result.target.result.contact;
               if (contact) {
-                console.log(contact.name[0], contact.tel[0].value);
+                // console.log(contact.name[0], contact.tel[0].value);
                 this.$router.showDialog('Confirmation', `<div class="kai-list-nav"><span class="sr-only">Share your location to ${contact.name[0]}, phone number is ${contact.tel[0].value}. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Share your location to ${contact.name[0]}, phone number is ${contact.tel[0].value}</span></div>`, null, 'Continue', () => {
                   var sms = new MozActivity({
                     name: "new",
@@ -471,7 +480,7 @@ window.addEventListener("load", function() {
           getMyLocation(true)
           .then((location) => {
             this.data.coords = {latitude: location.coords.latitude, longitude: location.coords.longitude};
-            console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
+            // console.log(location.coords.accuracy, location.coords.latitude, location.coords.longitude);
             this.$router.hideBottomSheet();
             this.$router.showDialog('Position Accuracy', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${location.coords.accuracy.toFixed(2)}m. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Position accuracy is ${location.coords.accuracy.toFixed(2)}m</span></div>`, null, 'Continue', () => {
               this.methods.checkInLocation();
@@ -517,7 +526,7 @@ window.addEventListener("load", function() {
                   }
                   break
                 case 'SoftRight':
-                  console.log(this.data.coords);
+                  // console.log(this.data.coords);
                   if (LOC_INPUT.value == '') {
                     pushLocalNotification('Please enter location name');
                     return
@@ -665,7 +674,7 @@ window.addEventListener("load", function() {
                           results.push(loc);
                         }
                       });
-                      console.log(results);
+                      // console.log(results);
                       this.setData({
                         locations: results,
                         total: results.length,
@@ -732,7 +741,7 @@ window.addEventListener("load", function() {
                 picker.onsuccess = (result) => {
                   const contact = result.target.result.contact;
                   if (contact) {
-                    console.log(contact.name[0], contact.tel[0].value);
+                    // console.log(contact.name[0], contact.tel[0].value);
                     this.$router.showDialog('Confirmation', `<div class="kai-list-nav"><span class="sr-only">Share ${location.name} to ${contact.name[0]}, phone number is ${contact.tel[0].value}. Press Left key to cancel. Press Right Key to continue.</span><span aria-hidden="true">Share ${location.name} to ${contact.name[0]}, phone number is ${contact.tel[0].value}</span></div>`, null, 'Continue', () => {
                       var sms = new MozActivity({
                         name: "new",
@@ -761,7 +770,7 @@ window.addEventListener("load", function() {
                   } else {
                     dis = `${parseFloat(dis).toFixed(2).toString()}m`;
                   }
-                  console.log(_location.coords.accuracy, _location.coords.latitude, _location.coords.longitude);
+                  // console.log(_location.coords.accuracy, _location.coords.latitude, _location.coords.longitude);
                   this.$router.hideBottomSheet();
                   this.$router.showDialog('Distance', `<div class="kai-list-nav"><span class="sr-only">Position accuracy is ${_location.coords.accuracy.toFixed(2)}m. Your distance from ${location.name} is ${dis}. Press Left key to close.</span><span aria-hidden="true">Position accuracy is ${_location.coords.accuracy.toFixed(2)}m. Your distance from ${location.name} is ${dis}</span></div>`, null, ' ', () => {}, 'Close', () => {}, ' ', () => {}, () => {});
                 })
