@@ -300,14 +300,14 @@ window.addEventListener("load", function() {
           var data = [];
           if (forecast.daily) {
             data.push({
-              'screen_reader': `${forecast.timezone} Weather Forecast for the next 7 days. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,`,
+              'screen_reader': `${forecast.timezone}. Weather Forecast for the next 7 days. Use Arrow Up and Arrow Down button to navigate the menu. Press Back to return,`,
               'text': `Weather Forecast`,
               'subtext': `${forecast.timezone}`,
             });
             for (var f in forecast.daily.time) {
               data.push({
-                'screen_reader': `Weather forecast on ${forecast.daily.time[f]} for ${forecast.timezone}. Minimum temperature is ${forecast.daily.temperature_2m_min[f]} degree celcius, maximum temperature is ${forecast.daily.temperature_2m_max[f]} degree celcius, wind speed is ${forecast.daily.windspeed_10m_max[f]}mph. Weather condition is ${WMO_CODE[forecast.daily.weathercode[f]]}`,
-                'text': `${forecast.daily.time[f]}`,
+                'screen_reader': `Weather forecast on ${new Date(forecast.daily.time[f]).toDateString()} for ${forecast.timezone}. Minimum temperature is ${forecast.daily.temperature_2m_min[f]} degree celcius, maximum temperature is ${forecast.daily.temperature_2m_max[f]} degree celcius, wind speed is ${forecast.daily.windspeed_10m_max[f]}${forecast.daily_units['windspeed_10m_max']}. Weather condition is ${WMO_CODE[forecast.daily.weathercode[f]]}`,
+                'text': `${new Date(forecast.daily.time[f]).toDateString()}`,
                 'subtext': `Min ${forecast.daily.temperature_2m_min[f]}${forecast.daily_units['temperature_2m_min']}, Max ${forecast.daily.temperature_2m_max[f]}${forecast.daily_units['temperature_2m_max']}, WMO Code ${forecast.daily.weathercode[f]}`,
               });
             }
